@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ShowSeeder::class,
             VenueSeeder::class,
             PerformanceSeeder::class,
+            TicketSeeder::class,
         ]);
     }
 }
