@@ -9,6 +9,7 @@ import { Link } from '@inertiajs/vue3';
 
             <nav>
                 <Link :href="route('shows.index')">Spettacoli</Link>
+                <Link :href="route('venues.index')">Le nostre sale</Link>
 
                 <template v-if="$page.props.auth.user"> <!-- different behaviour based on user auth -->
                     <Link :href="route('profile.edit')">{{ $page.props.auth.user.name }}</Link>
