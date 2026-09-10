@@ -20,4 +20,11 @@ class Venue extends Model
     {
         return $this->hasMany(Performance::class);
     }
+
+    public function upcomingPerformances(): HasMany
+    {
+        return $this->performances()
+            ->where('starts_at', '>=', now())
+            ->orderBy('starts_at');
+    }
 }
