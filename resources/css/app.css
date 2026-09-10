@@ -1,3 +1,177 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Palette: "Old Paper Print" by SchemeColor
+ * https://www.schemecolor.com/old-paper-print-color-scheme.php
+ */
+.theater {
+    --scarlet-rose: #c7392b;
+    --rich-coral: #df6446;
+    --bread: #eed0a8;
+    --cork: #a5876a;
+    --camo: #866c53;
+
+    --panel: #faf2e4;
+    --ink: #33291f;
+
+    background: var(--bread);
+    color: var(--ink);
+    font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding-bottom: 3rem;
+}
+
+.theater header,
+.theater main {
+    max-width: 55rem;
+    margin: 0 auto;
+}
+
+.theater header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1.5rem 1rem 0.75rem;
+    border-bottom: 3px double;
+}
+
+.theater main {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--panel);
+    border: 1px solid var(--camo);
+    box-shadow: 5px 5px 0 var(--cork);
+}
+
+.theater nav {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+}
+
+.theater h1,
+.theater h2 {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+}
+
+.theater h1 { font-size: 1.75rem; }
+.theater h1 a { color: var(--ink); text-decoration: none; }
+
+.theater h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--cork);
+}
+
+.theater p { margin-bottom: 1rem; }
+
+.theater .actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.theater a {
+    color: var(--scarlet-rose);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+}
+
+.theater a:hover { color: var(--ink); }
+.theater nav a { text-decoration: none; }
+.theater nav a:hover { text-decoration: underline; }
+
+.theater .error { color: var(--rich-coral); font-size: 0.9rem; }
+
+.theater .tag {
+    margin-left: 0.4rem;
+    padding: 0 0.35rem;
+    border: 1px solid var(--cork);
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    color: var(--camo);
+}
+
+.theater table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--camo);
+    margin-bottom: 1rem;
+}
+
+.theater th,
+.theater td {
+    border: 1px solid var(--cork);
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+}
+
+.theater th {
+    background: var(--bread);
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    font-weight: normal;
+}
+
+.theater tbody tr:nth-child(even) { background: #f5e7d3; }
+.theater tbody tr:hover { background: var(--bread); }
+
+.theater form > div { margin-bottom: 1.1rem; }
+
+.theater label {
+    display: block;
+    font-variant: small-caps;
+    letter-spacing: 0.05em;
+    color: var(--camo);
+}
+
+.theater input:not([type='checkbox']),
+.theater textarea {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--camo);
+}
+
+.theater input:focus,
+.theater textarea:focus {
+    outline: 2px solid var(--scarlet-rose);
+    outline-offset: -2px;
+    box-shadow: none;
+}
+
+.theater button {
+    padding: 0.4rem 1.1rem;
+    border: 1px solid var(--camo);
+    border-radius: 0;
+    background: var(--bread);
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s;
+}
+
+.theater button:hover { background: var(--camo); color: var(--panel); }
+
+.theater button:active {
+    transform: translate(2px, 2px);
+}
+
+.theater button:disabled,
+.theater button:disabled:hover {
+    background: var(--bread);
+    color: var(--camo);
+    box-shadow: none;
+    cursor: default;
+}
+
+.theater nav button {
+    padding: 0.1rem 0.5rem;
+    box-shadow: 1px 1px 0 var(--cork);
+}

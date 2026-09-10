@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('shows', function (Blueprint $table) {
             $table->id();
             $table->string('title', 255);
-            $table->text('description')->nullable();
+            $table->text('description');
             $table->integer('duration_minutes');
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
