@@ -21,7 +21,7 @@ class PerformanceController extends Controller
             'max_duration' => $request->integer('max_duration', 240),
         ];
 
-        $performances = Performance::with(['show:id,title,duration_mintues,is_featured', 'venue:id,name'])
+        $performances = Performance::with(['show:id,title,duration_minutes,is_featured', 'venue:id,name'])
             ->where('starts_at', $filters['past'] ? '<' : '>=', now())
             ->whereHas('show', fn ($query) => $query
                 ->where('title', 'like', '%'.$filters['search'].'%')
