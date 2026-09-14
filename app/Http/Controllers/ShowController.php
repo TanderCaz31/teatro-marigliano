@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreShowRequest;
 use App\Http\Requests\UpdateShowRequest;
 use App\Models\Show;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ShowController extends Controller
 {
     // Displays the page with all shows
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('Shows/Index', [
             'shows' => Show::withCount('performances')->orderBy('title')->get(),
@@ -19,7 +21,7 @@ class ShowController extends Controller
     }
 
     // Displays the info page for a single show
-    public function show(Show $show)
+    public function show(Show $show): Response
     {
         return Inertia::render('Shows/Show', [
             'show' => $show->load(['performances' => fn ($query) => $query->with('venue')->orderBy('starts_at')]),
@@ -27,7 +29,7 @@ class ShowController extends Controller
     }
 
     // Displays the create page
-    public function create()
+    public function create(): Response
     {
         Gate::authorize('create', Show::class);
 
@@ -35,7 +37,7 @@ class ShowController extends Controller
     }
 
     // Creates the model instance and redirects to index
-    public function store(StoreShowRequest $request)
+    public function store(StoreShowRequest $request): RedirectResponse
     {
         Show::create($request->validated());
 
@@ -43,7 +45,7 @@ class ShowController extends Controller
     }
 
     // Displays the edit page for a show
-    public function edit(Show $show)
+    public function edit(Show $show): Response
     {
         Gate::authorize('update', $show);
 
@@ -53,7 +55,7 @@ class ShowController extends Controller
     }
 
     // Updates the model and redirects to index
-    public function update(UpdateShowRequest $request, Show $show)
+    public function update(UpdateShowRequest $request, Show $show): RedirectResponse
     {
         $show->update($request->validated());
 
@@ -61,7 +63,7 @@ class ShowController extends Controller
     }
 
     // Deletes the model instance
-    public function destroy(Show $show)
+    public function destroy(Show $show): RedirectResponse
     {
         Gate::authorize('delete', $show);
         $show->delete();

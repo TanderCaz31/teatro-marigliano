@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Venue;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class VenueController extends Controller
 {
     // Displays the page with all venues
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('Venues/Index', [
             'venues' => Venue::withCount('upcomingPerformances')

@@ -21,7 +21,7 @@ class Performance extends Model
     protected function casts(): array
     {
         return [
-            'starts_at' => 'datetime'
+            'starts_at' => 'datetime',
         ];
     }
 

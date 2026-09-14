@@ -25,7 +25,7 @@ class ShowFactory extends Factory
         ];
     }
 
-    public function featured(): Factory
+    public function featured(): static
     {
         return $this->state(function () {
             return [

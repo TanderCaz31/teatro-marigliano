@@ -13,7 +13,7 @@ class Ticket extends Model
     protected $fillable = [
         'user_id',
         'performance_id',
-        'seat_number'
+        'seat_number',
     ];
 
     public function performance(): BelongsTo

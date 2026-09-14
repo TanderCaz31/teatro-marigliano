@@ -20,6 +20,7 @@ class PerformanceFactory extends Factory
     public function definition(): array
     {
         $venue = Venue::inRandomOrder()->first() ?? Venue::factory()->create();
+
         return [
             'venue_id' => $venue->id,
             'show_id' => Show::inRandomOrder()->value('id') ?? Show::factory(),
@@ -28,7 +29,7 @@ class PerformanceFactory extends Factory
         ];
     }
 
-    public function past(): Factory
+    public function past(): static
     {
         return $this->state(function () {
             return [
