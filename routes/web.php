@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShowController;
 use App\Http\Controllers\VenueController;
+use App\Http\Controllers\PerformanceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,7 +16,7 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-
+// TODO simplify this to remove the laravel starting page entirely
 Route::redirect('/dashboard', '/shows')->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('shows', ShowController::class)->except(['index', 'show']);
 });
 Route::resource('shows', ShowController::class)->only(['index', 'show']);
-Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
+Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
+Route::get('performances', [PerformanceController::class, 'index'])->name('performances.index');
 
 require __DIR__.'/auth.php';
