@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -34,7 +35,7 @@ class TicketPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user): Response //TODO admin-only
+    public function update(User $user): Response // TODO admin-only
     {
         return Response::allow();
     }
@@ -42,9 +43,15 @@ class TicketPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user): Response //TODO admin-only
+    public function delete(User $user, Ticket $ticket): Response
     {
-        return Response::allow();
+        if ($user->id !== $ticket->user_id) {
+            return Response::deny('Puoi annullare solo i tuoi biglietti.');
+        }
+
+        return $ticket->performance->starts_at->isFuture()
+            ? Response::allow()
+            : Response::deny("Non puoi annullare un biglietto per un'esibizione passata.");
     }
 
     /**
