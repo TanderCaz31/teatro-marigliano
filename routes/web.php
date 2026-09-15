@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShowController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\VenueController;
-use App\Http\Controllers\PerformanceController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('shows', ShowController::class)->except(['index', 'show']);
+
+    Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::post('performances/{performance}/tickets', [TicketController::class, 'store'])->name('tickets.store');
+    Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
 });
 Route::resource('shows', ShowController::class)->only(['index', 'show']);
 Route::get('venues', [VenueController::class, 'index'])->name('venues.index');

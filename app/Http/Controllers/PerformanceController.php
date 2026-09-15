@@ -22,6 +22,7 @@ class PerformanceController extends Controller
         ];
 
         $performances = Performance::with(['show:id,title,duration_minutes,is_featured', 'venue:id,name'])
+            ->withCount('tickets')
             ->where('starts_at', $filters['past'] ? '<' : '>=', now())
             ->whereHas('show', fn ($query) => $query
                 ->where('title', 'like', '%'.$filters['search'].'%')
@@ -30,9 +31,10 @@ class PerformanceController extends Controller
             ->orderByDesc(Show::select('is_featured')->whereColumn('shows.id', 'performances.show_id')) // Small subquery
             ->orderBy('starts_at', $filters['past'] ? 'desc' : 'asc')
             ->get();
+
         return Inertia::render('Performances/Index', [
             'performances' => $performances,
-            'filters' => $filters
+            'filters' => $filters,
         ]);
     }
 }

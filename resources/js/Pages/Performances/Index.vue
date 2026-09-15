@@ -20,6 +20,7 @@ const formatDate = (value) =>
 
     <TheaterLayout>
         <h2>Esibizioni</h2>
+        <p v-if="$page.props.errors.ticket" class="error">{{ $page.props.errors.ticket }}</p>
 
         <form @submit.prevent="search">
             <div>
@@ -56,6 +57,7 @@ const formatDate = (value) =>
                 <th>Spettacolo</th>
                 <th>Durata</th>
                 <th>Sala</th>
+                <th v-if="!filters.past">Prenota</th>
             </tr>
             </thead>
             <tbody>
@@ -67,6 +69,11 @@ const formatDate = (value) =>
                 </td>
                 <td>{{ performance.show.duration_minutes }} min</td>
                 <td>{{ performance.venue.name }}</td>
+                <td v-if="!filters.past">
+                    <span v-if="performance.tickets_count >= performance.capacity">Esaurito</span>
+                    <Link v-else-if="$page.props.auth.user" :href="route('tickets.store', performance.id)" method="post" as="button">Prenota</Link>
+                    <Link v-else :href="route('login')">Accedi</Link>
+                </td>
             </tr>
             </tbody>
         </table>
