@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Performance;
 use App\Models\Show;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Tests\TestCase;
@@ -70,6 +72,20 @@ class PerformanceTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('performances.0.show.id', $featured->id)
                 ->where('performances.1.show.id', $regular->id)
+            );
+    }
+
+    public function test_index_includes_the_number_of_tickets_sold(): void
+    {
+        $user = User::factory()->create();
+        $performance = Performance::factory()->create();
+        Ticket::factory()->create(['user_id' => $user->id, 'performance_id' => $performance->id, 'seat_number' => 1]);
+        Ticket::factory()->create(['user_id' => $user->id, 'performance_id' => $performance->id, 'seat_number' => 2]);
+
+        $this->get(route('performances.index'))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('performances.0.tickets_count', 2)
             );
     }
 }
