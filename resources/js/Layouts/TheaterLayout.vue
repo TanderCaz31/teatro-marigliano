@@ -13,6 +13,7 @@ import { Link } from '@inertiajs/vue3';
                 <Link :href="route('performances.index')">Prenotazioni</Link>
 
                 <template v-if="$page.props.auth.user"> <!-- different behaviour based on user auth -->
+                    <Link :href="route('tickets.index')">I miei biglietti</Link>
                     <Link :href="route('profile.edit')">{{ $page.props.auth.user.name }}</Link>
                     <Link :href="route('logout')" method="post" as="button">Esci</Link>
                 </template>
