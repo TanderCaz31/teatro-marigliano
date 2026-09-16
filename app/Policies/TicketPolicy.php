@@ -35,9 +35,9 @@ class TicketPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user): Response // TODO admin-only
+    public function update(User $user): Response
     {
-        return Response::allow();
+        return Response::deny();
     }
 
     /**
@@ -45,7 +45,7 @@ class TicketPolicy
      */
     public function delete(User $user, Ticket $ticket): Response
     {
-        if ($user->id !== $ticket->user_id) {
+        if ($user->id !== $ticket->user_id || $user->isAdmin()) {
             return Response::deny('Puoi annullare solo i tuoi biglietti.');
         }
 
