@@ -26,25 +26,31 @@ class ShowPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): Response //TODO admin-only
+    public function create(User $user): Response
     {
-        return Response::allow();
+        return $user->isAdmin()
+            ? Response::allow()
+            : Response::deny('Solo gli amministratori possono aggiungere nuovi spettacoli.');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user): Response //TODO admin-only
+    public function update(User $user): Response
     {
-        return Response::allow();
+        return $user->isAdmin()
+            ? Response::allow()
+            : Response::deny('Solo gli amministratori possono aggiornare dati relativi agli spettacoli.');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user): Response //TODO admin-only
+    public function delete(User $user): Response
     {
-        return Response::allow();
+        return $user->isAdmin()
+            ? Response::allow()
+            : Response::deny('Solo gli amministratori possono eliminare spettacoli esistenti.');
     }
 
     /**

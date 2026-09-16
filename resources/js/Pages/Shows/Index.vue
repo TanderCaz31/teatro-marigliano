@@ -13,8 +13,7 @@ defineProps({
     <TheaterLayout>
         <h2>Catalogo spettacoli</h2>
 
-        <!-- TODO admin-only once the role column exists -->
-        <p v-if="$page.props.auth.user">
+        <p v-if="$page.props.auth.user?.role === 'admin'">
             <Link :href="route('shows.create')">Aggiungi uno spettacolo</Link>
         </p>
 

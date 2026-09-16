@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RoleEnum;
 use App\Models\Performance;
 use App\Models\Show;
 use App\Models\Ticket;
@@ -157,6 +158,47 @@ class TicketTest extends TestCase
         $ticket = Ticket::factory()->create(['user_id' => $user->id, 'performance_id' => $performance->id]);
 
         $this->actingAs($user)
+            ->delete(route('tickets.destroy', $ticket))
+            ->assertForbidden();
+
+        $this->assertModelExists($ticket);
+    }
+
+    public function test_admin_can_cancel_someone_elses_upcoming_ticket(): void
+    {
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $user2 = User::factory()->create();
+        $performance = Performance::factory()->create();
+        $ticket = Ticket::factory()->create(['user_id' => $user2->id, 'performance_id' => $performance->id, 'seat_number' => 1]);
+
+        $this->actingAs($admin)
+            ->delete(route('tickets.destroy', $ticket))
+            ->assertRedirect(route('tickets.index'));
+
+        $this->assertModelMissing($ticket);
+    }
+
+    public function test_admin_can_cancel_their_own_upcoming_ticket(): void
+    {
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $performance = Performance::factory()->create();
+        $ticket = Ticket::factory()->create(['user_id' => $admin->id, 'performance_id' => $performance->id, 'seat_number' => 1]);
+
+        $this->actingAs($admin)
+            ->delete(route('tickets.destroy', $ticket))
+            ->assertRedirect(route('tickets.index'));
+
+        $this->assertModelMissing($ticket);
+    }
+
+    public function test_admin_cannot_cancel_a_ticket_for_a_past_performance(): void
+    {
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $owner = User::factory()->create();
+        $performance = Performance::factory()->past()->create();
+        $ticket = Ticket::factory()->create(['user_id' => $owner->id, 'performance_id' => $performance->id, 'seat_number' => 1]);
+
+        $this->actingAs($admin)
             ->delete(route('tickets.destroy', $ticket))
             ->assertForbidden();
 

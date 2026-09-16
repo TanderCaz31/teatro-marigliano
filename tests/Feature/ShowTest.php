@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RoleEnum;
 use App\Models\Performance;
 use App\Models\Show;
 use App\Models\User;
@@ -14,7 +15,7 @@ class ShowTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_guests_can_browse_the_shows()
+    public function test_guests_can_browse_the_shows(): void
     {
         Show::factory()->count(3)->create();
 
@@ -27,7 +28,7 @@ class ShowTest extends TestCase
             );
     }
 
-    public function test_show_page_lists_performances()
+    public function test_show_page_lists_performances(): void
     {
         $show = Show::factory()->create();
         Performance::factory()->count(2)->create(['show_id' => $show->id]);
@@ -41,13 +42,13 @@ class ShowTest extends TestCase
             );
     }
 
-    public function test_guests_cannot_reach_the_create_page()
+    public function test_guests_cannot_reach_the_create_page(): void
     {
         $this->get(route('shows.create'))
             ->assertRedirect(route('login'));
     }
 
-    public function test_guests_cannot_store_a_show()
+    public function test_guests_cannot_store_a_show(): void
     {
         $this->post(route('shows.store'), [
             'title' => 'Titolo',
@@ -59,9 +60,9 @@ class ShowTest extends TestCase
         $this->assertDatabaseCount('shows', 0);
     }
 
-    public function test_auth_user_can_store_a_show()
+    public function test_admin_can_store_a_show(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['role' => RoleEnum::ADMIN]);
 
         $this->actingAs($user)
             ->post(route('shows.store'), [
@@ -77,35 +78,35 @@ class ShowTest extends TestCase
         ]);
     }
 
-    // --- Tests on working cases ---
-    public function test_show_can_be_become_unfeatured()
+    // - Tests on working cases -
+    public function test_show_can_be_become_unfeatured(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
         $show = Show::factory()->featured()->create();
         $payload = Show::factory()->make($show->attributesToArray())->toArray();
         $payload['is_featured'] = false;
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->put(route('shows.update', $show), $payload)
             ->assertRedirect(route('shows.index'));
 
         $this->assertDatabaseHas('shows', ['id' => $show->id, 'is_featured' => false]);
     }
 
-    public function test_show_can_be_deleted()
+    public function test_show_can_be_deleted(): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
         $show = Show::factory()->create();
 
-        $this->actingAs($user)
+        $this->actingAs($admin)
             ->delete(route('shows.destroy', $show))
             ->assertRedirect(route('shows.index'));
 
         $this->assertModelMissing($show);
     }
 
-    // --- Tests on failing cases ---
-    public static function showValProvider()
+    // - Tests on failing cases -
+    public static function showValProvider(): array
     {
         return [
             'title required' => ['title', ''],
@@ -120,14 +121,14 @@ class ShowTest extends TestCase
     }
 
     #[DataProvider('showValProvider')]
-    public function test_show_store_val($field, $value)
+    public function test_show_store_val($field, $value): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
         $payload = Show::factory()->make()->toArray();
         $payload[$field] = $value;
 
         $response = $this
-            ->actingAs($user)
+            ->actingAs($admin)
             ->post(route('shows.store'), $payload);
 
         $response->assertStatus(302);
@@ -136,19 +137,107 @@ class ShowTest extends TestCase
     }
 
     #[DataProvider('showValProvider')]
-    public function test_show_update_val($field, $value)
+    public function test_show_update_val($field, $value): void
     {
-        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
         $show = Show::factory()->create();
         $payload = Show::factory()->make($show->attributesToArray())->toArray();
         $payload[$field] = $value;
 
         $response = $this
-            ->actingAs($user)
+            ->actingAs($admin)
             ->put(route('shows.update', $show), $payload);
 
         $response->assertStatus(302);
         $response->assertSessionHasErrors($field);
         $this->assertDatabaseMissing('shows', [$field => $value]);
+    }
+
+    // - Authorization -
+    public static function pageAccessProvider(): array
+    {
+        return [
+            'admin' => ['role' => RoleEnum::ADMIN, 'expectedStatus' => 200],
+            'member' => ['role' => RoleEnum::MEMBER, 'expectedStatus' => 403],
+        ];
+    }
+
+    public static function pageAccessProviderRedirect(): array
+    {
+        return [
+            'admin' => ['role' => RoleEnum::ADMIN, 'expectedStatus' => 302, 'shouldSucceed' => true],
+            'member' => ['role' => RoleEnum::MEMBER, 'expectedStatus' => 403, 'shouldSucceed' => false],
+        ];
+    }
+
+    #[DataProvider('pageAccessProvider')]
+    public function test_show_create_page_access(RoleEnum $role, int $expectedStatus): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+
+        $this->actingAs($user)
+            ->get(route('shows.create'))
+            ->assertStatus($expectedStatus);
+    }
+
+    #[DataProvider('pageAccessProvider')]
+    public function test_show_edit_page_access(RoleEnum $role, int $expectedStatus): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $show = Show::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('shows.edit', $show))
+            ->assertStatus($expectedStatus);
+    }
+
+    #[DataProvider('pageAccessProviderRedirect')]
+    public function test_show_store_route_access(RoleEnum $role, int $expectedStatus, bool $shouldSucceed): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $payload = Show::factory()->make()->toArray();
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('shows.store'), $payload);
+
+        $response->assertStatus($expectedStatus);
+        $shouldSucceed
+            ? $this->assertDatabaseHas('shows', ['title' => $payload['title']])
+            : $this->assertDatabaseCount('shows', 0);
+    }
+
+    #[DataProvider('pageAccessProviderRedirect')]
+    public function test_show_update_route_access(RoleEnum $role, int $expectedStatus, bool $shouldSucceed): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $show = Show::factory()->create();
+        $payload = Show::factory()->make($show->attributesToArray())->toArray();
+        $payload['title'] = 'Titolo 2';
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('shows.update', $show), $payload);
+
+        $response->assertStatus($expectedStatus);
+        $shouldSucceed
+            ? $this->assertDatabaseHas('shows', ['id' => $show->id, 'title' => 'Titolo 2'])
+            : $this->assertDatabaseMissing('shows', ['title' => 'Titolo 2']);
+    }
+
+    #[DataProvider('pageAccessProviderRedirect')]
+    public function test_show_destroy_route_access(RoleEnum $role, int $expectedStatus, bool $shouldSucceed): void
+    {
+        $user = User::factory()->create(['role' => $role]);
+        $show = Show::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->delete(route('shows.destroy', $show));
+
+        $response->assertStatus($expectedStatus);
+        $shouldSucceed
+            ? $this->assertModelMissing($show)
+            : $this->assertModelExists($show);
     }
 }
