@@ -45,7 +45,7 @@ const formatDate = (value) =>
                 </label>
             </div>
 
-            <button type="submit" :disabled="form.processing">Cerca</button>
+            <button class="mb-3" type="submit" :disabled="form.processing">Cerca</button>
         </form>
 
         <p v-if="performances.length === 0">Nessuna esibizione corrisponde ai filtri.</p>
