@@ -45,7 +45,7 @@ class TicketPolicy
      */
     public function delete(User $user, Ticket $ticket): Response
     {
-        if ($user->id !== $ticket->user_id && !$user->isAdmin()) {
+        if ($user->id !== $ticket->user_id && ! $user->isAdmin()) {
             return Response::deny('Puoi annullare solo i tuoi biglietti.');
         }
 

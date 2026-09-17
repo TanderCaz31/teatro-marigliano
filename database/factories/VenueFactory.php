@@ -14,7 +14,7 @@ class VenueFactory extends Factory
         'Sala Galileo',
         'Sala Dante',
         'Sala da Vinci',
-        'Sala Leopardi'
+        'Sala Leopardi',
     ];
 
     /**
@@ -26,8 +26,8 @@ class VenueFactory extends Factory
     {
         return [
             'name' => fake()->unique()->randomElement(self::VENUENAMES),
-            'total_seats' => fake()->numberBetween(3, 5)*24, //72, 96, 120
-            'rows' => fake()->numberBetween(1, 3)*4, // 4, 8, 12
+            'total_seats' => fake()->numberBetween(3, 5) * 24, // 72, 96, 120
+            'rows' => fake()->numberBetween(1, 3) * 4, // 4, 8, 12
         ];
     }
 }

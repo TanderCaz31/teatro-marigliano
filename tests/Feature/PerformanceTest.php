@@ -53,7 +53,7 @@ class PerformanceTest extends TestCase
 
         $this->get(route('performances.index', ['past' => 1]))
             ->assertOk()
-            ->assertInertia(fn(AssertableInertia $page) => $page
+            ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Performances/Index')
                 ->has('performances', 1)
                 ->where('performances.0.id', $past->id)
