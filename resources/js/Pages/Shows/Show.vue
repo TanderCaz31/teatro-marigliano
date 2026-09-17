@@ -50,8 +50,7 @@ const destroy = () => {
             </tbody>
         </table>
 
-        <!-- TODO admin-only once the role column exists -->
-        <p v-if="$page.props.auth.user" class="actions">
+        <p v-if="$page.props.auth.user?.role === 'admin'" class="actions">
             <Link :href="route('shows.edit', show.id)">Modifica</Link>
             <button @click="destroy">Elimina</button>
         </p>
