@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Performance;
 use App\Models\Ticket;
+use App\Notifications\TicketBooked;
 use App\Services\BookingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,7 +31,8 @@ class TicketController extends Controller
     public function store(Request $request, Performance $performance, BookingService $bookingService): RedirectResponse
     {
         // Delegate all the logic to the service
-        $bookingService->book($request->user(), $performance);
+        $ticket = $bookingService->book($request->user(), $performance);
+        $request->user()->notify(new TicketBooked($ticket));
 
         return to_route('tickets.index');
     }
