@@ -18,6 +18,11 @@ class UserSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'role' => RoleEnum::ADMIN,
         ]);
+        User::factory()->create([
+            'name' => 'member',
+            'email' => 'member@gmail.com',
+            'role' => RoleEnum::MEMBER,
+        ]);
         User::factory()->count(10)->create();
     }
 }

@@ -38,7 +38,7 @@ const formatDate = (value) =>
                 <input id="max_duration" v-model.number="form.max_duration" type="range" min="40" max="240" step="10" />
             </div>
 
-            <div>
+            <div v-if="$page.props.auth.user?.role === 'admin'">
                 <label>
                     <input v-model="form.past" type="checkbox" />
                     Mostra esibizioni passate
