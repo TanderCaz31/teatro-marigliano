@@ -204,4 +204,24 @@ class TicketTest extends TestCase
 
         $this->assertModelExists($ticket);
     }
+
+    public function test_admin_can_see_every_ticket_(): void
+    {
+        $user = User::factory()->create();
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $upcoming = Performance::factory()->create();
+        $past = Performance::factory()->past()->create();
+
+        Ticket::factory()->create(['user_id' => $user->id, 'performance_id' => $upcoming->id]);
+        Ticket::factory()->create(['user_id' => $user->id, 'performance_id' => $past->id]);
+
+        $this->actingAs($admin)
+            ->get(route('tickets.index', ['showAll' => 1]))
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->where('showAll', true)
+                ->has('tickets', 2)
+                ->where('tickets.0.user.name', $user->name)
+            );
+    }
 }

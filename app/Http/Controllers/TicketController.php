@@ -17,7 +17,13 @@ class TicketController extends Controller
     // Displays the logged-in user's tickets, soonest performance first
     public function index(Request $request): Response
     {
-        $tickets = $request->user()->tickets()
+        $showAll = $request->boolean('showAll') && $request->user()->isAdmin();
+
+        $query = $showAll
+            ? Ticket::with('user:id,name')
+            : $request->user()->tickets();
+
+        $tickets = $query
             ->with(['performance.show:id,title', 'performance.venue'])
             ->get()
             ->sortBy('performance.starts_at')
@@ -25,6 +31,7 @@ class TicketController extends Controller
 
         return Inertia::render('Tickets/Index', [
             'tickets' => $tickets,
+            'showAll' => $showAll,
         ]);
     }
 

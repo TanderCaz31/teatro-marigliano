@@ -1,9 +1,10 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import TheaterLayout from '@/Layouts/TheaterLayout.vue';
 
 defineProps({
     tickets: Array,
+    showAll: Boolean,
 });
 
 const formatDate = (dateToFormat) =>
@@ -22,9 +23,16 @@ const cancel = (ticket) => {
     <Head title="I miei biglietti" />
 
     <TheaterLayout>
-        <h2>I miei biglietti</h2>
+        <h2>{{ showAll ? 'Tutti i biglietti' : 'I miei biglietti' }}</h2>
 
-        <p v-if="tickets.length === 0">Non hai ancora prenotato nessun biglietto.</p>
+        <p v-if="$page.props.auth.user?.role === 'admin'">
+            <Link v-if="showAll" :href="route('tickets.index')">Mostra solo i miei biglietti</Link>
+            <Link v-else :href="route('tickets.index', { showAll: 1 })">Mostra tutti i biglietti</Link>
+        </p>
+
+        <p v-if="tickets.length === 0">
+            {{ showAll ? 'Nessun biglietto prenotato.' : 'Non hai ancora prenotato un biglietto.' }}
+        </p>
 
         <table v-else>
             <thead>
@@ -33,6 +41,7 @@ const cancel = (ticket) => {
                 <th>Data</th>
                 <th>Sala</th>
                 <th>Posto</th>
+                <th v-if="showAll">Utente</th>
                 <th></th>
             </tr>
             </thead>
@@ -42,6 +51,7 @@ const cancel = (ticket) => {
                 <td>{{ formatDate(ticket.performance.starts_at) }}</td>
                 <td>{{ ticket.performance.venue.name }}</td>
                 <td>{{ ticket.seat_code }}</td>
+                <td v-if="showAll">{{ ticket.user.name }}</td>
                 <td>
                     <button v-if="isUpcoming(ticket.performance.starts_at)" @click="cancel(ticket)">Annulla</button>
                 </td>
