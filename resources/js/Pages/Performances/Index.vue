@@ -45,7 +45,10 @@ const formatDate = (value) =>
                 </label>
             </div>
 
-            <button class="mb-3" type="submit" :disabled="form.processing">Cerca</button>
+            <p class="flex justify-between">
+                <button type="submit" :disabled="form.processing">Cerca</button>
+                <Link v-if="$page.props.auth.user?.role === 'admin'" :href="route('performances.create')">Aggiungi una nuova esibizione</Link>
+            </p>
         </form>
 
         <p v-if="performances.length === 0">Nessuna esibizione corrisponde ai filtri.</p>

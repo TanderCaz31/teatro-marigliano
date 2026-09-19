@@ -2,12 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Enums\RoleEnum;
 use App\Models\Performance;
 use App\Models\Show;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\Venue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PerformanceTest extends TestCase
@@ -87,5 +90,79 @@ class PerformanceTest extends TestCase
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->where('performances.0.tickets_count', 2)
             );
+    }
+
+    // - Not a test, but to avoid repeating the long payload each time -
+    private function performancePayload(): array
+    {
+        return [
+            'show_id' => Show::factory()->create()->id,
+            'venue_id' => Venue::factory()->create()->id,
+            'starts_at' => now()->addDays(5)->setTime(21, 0)->format('Y-m-d\TH:i'),
+        ];
+    }
+
+    public function test_admin_can_create_a_performance(): void
+    {
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $payload = $this->performancePayload(); // need to store this as the assertion checks if the data is the same
+
+        $this->actingAs($admin)
+            ->post(route('performances.store'), $payload)
+            ->assertRedirect(route('performances.index'));
+
+        $this->assertDatabaseHas('performances', [
+            'show_id' => $payload['show_id'],
+            'venue_id' => $payload['venue_id'],
+        ]);
+    }
+
+    public function test_member_cannot_create_a_performance(): void
+    {
+        $member = User::factory()->create();
+
+        $this->actingAs($member)
+            ->post(route('performances.store'), $this->performancePayload())
+            ->assertForbidden();
+
+        $this->assertDatabaseCount('performances', 0);
+    }
+
+    public function test_guest_cannot_create_a_performance(): void
+    {
+        $this->post(route('performances.store'), $this->performancePayload())
+            ->assertRedirect(route('login'));
+
+        $this->assertDatabaseCount('performances', 0);
+    }
+
+    // - Tests on failing cases -
+    // Same format as ShowTest.php
+    public static function performanceValProvider(): array
+    {
+        return [
+            'show required' => ['show_id', ''],
+            'show must exist' => ['show_id', 9999],
+            'venue required' => ['venue_id', ''],
+            'venue must exist' => ['venue_id', 9999],
+            'date required' => ['starts_at', ''],
+            'date must be date format' => ['starts_at', 'domani sera'],
+            'date in the past' => ['starts_at', '2020-01-01T21:00'],
+        ];
+    }
+
+    #[DataProvider('performanceValProvider')]
+    public function test_performance_store_val($field, $value): void
+    {
+        $admin = User::factory()->create(['role' => RoleEnum::ADMIN]);
+        $payload = $this->performancePayload();
+        $payload[$field] = $value;
+
+        $this->actingAs($admin)
+            ->post(route('performances.store'), $payload)
+            ->assertStatus(302)
+            ->assertSessionHasErrors($field);
+
+        $this->assertDatabaseCount('performances', 0);
     }
 }

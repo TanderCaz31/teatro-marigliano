@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePerformanceRequest;
 use App\Models\Performance;
 use App\Models\Show;
+use App\Models\Venue;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PerformanceController extends Controller
 {
-    // Displays performances using the user-selected sorts
+    // Displays performances using the user-selected filters
     // Featured performances always first
     public function index(Request $request): Response
     {
@@ -36,5 +40,29 @@ class PerformanceController extends Controller
             'performances' => $performances,
             'filters' => $filters,
         ]);
+    }
+
+    // Loads the creation page
+    public function create(): Response
+    {
+        Gate::authorize('create', Performance::class);
+
+        return Inertia::render('Performances/Create', [
+            'shows' => Show::orderBy('title')->get(['id', 'title', 'is_featured']),
+            'venues' => Venue::orderBy('name')->get(['id', 'name', 'total_seats']),
+        ]);
+    }
+
+    public function store(StorePerformanceRequest $request): RedirectResponse
+    {
+        $venue = Venue::find($request->integer('venue_id'));
+
+        // capacity is not chosen by the admin, but by the venue they selected
+        Performance::create([
+            ...$request->validated(),
+            'capacity' => $venue->total_seats,
+        ]);
+
+        return to_route('performances.index');
     }
 }

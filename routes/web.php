@@ -18,8 +18,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('shows', ShowController::class)->except(['index', 'show']);
 
     Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
-    Route::post('performances/{performance}/tickets', [TicketController::class, 'store'])->name('tickets.store');
     Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+    Route::post('performances/{performance}/tickets', [TicketController::class, 'store'])->name('tickets.store');
+    Route::get('performances/create', [PerformanceController::class, 'create'])->name('performances.create');
+    Route::post('performances', [PerformanceController::class, 'store'])->name('performances.store');
 });
 Route::resource('shows', ShowController::class)->only(['index', 'show']);
 Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
